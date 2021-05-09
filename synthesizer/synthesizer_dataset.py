@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 import numpy as np
 from pathlib import Path
-from synthesizer.utils.text import text_to_sequence
+from synthesizer.utils.vitext import text_to_sequence
 
 
 class SynthesizerDataset(Dataset):
@@ -12,12 +12,12 @@ class SynthesizerDataset(Dataset):
         with metadata_fpath.open("r") as metadata_file:
             metadata = [line.split("|") for line in metadata_file]
         
-        mel_fnames = [x[1] for x in metadata if int(x[4])]
+        mel_fnames = [x[1] for x in metadata if x[4]=="tri"]
         mel_fpaths = [mel_dir.joinpath(fname) for fname in mel_fnames]
-        embed_fnames = [x[2] for x in metadata if int(x[4])]
+        embed_fnames = [x[2] for x in metadata if x[4]=="tri"]
         embed_fpaths = [embed_dir.joinpath(fname) for fname in embed_fnames]
         self.samples_fpaths = list(zip(mel_fpaths, embed_fpaths))
-        self.samples_texts = [x[5].strip() for x in metadata if int(x[4])]
+        self.samples_texts = [x[5].strip() for x in metadata if x[4]=="tri"]
         self.metadata = metadata
         self.hparams = hparams
         
@@ -41,7 +41,8 @@ class SynthesizerDataset(Dataset):
         # Convert the list returned by text_to_sequence to a numpy array
         text = np.asarray(text).astype(np.int32)
 
-        return text, mel.astype(np.float32), embed.astype(np.float32), index
+        mel_frames = mel.shape[1]
+        return text, mel.astype(np.float32), embed.astype(np.float32), index, int(mel_frames)
 
     def __len__(self):
         return len(self.samples_fpaths)
@@ -77,13 +78,15 @@ def collate_synthesizer(batch, r, hparams):
     # Index (for vocoder preprocessing)
     indices = [x[3] for x in batch]
 
+    # Mel-frame
+    mel_frames = [x[4] for x in batch]
 
     # Convert all to tensor
     chars = torch.tensor(chars).long()
     mel = torch.tensor(mel)
     embeds = torch.tensor(embeds)
 
-    return chars, mel, embeds, indices
+    return chars, mel, embeds, indices, mel_frames
 
 def pad1d(x, max_len, pad_value=0):
     return np.pad(x, (0, max_len - len(x)), mode="constant", constant_values=pad_value)

@@ -8,7 +8,7 @@ from synthesizer.synthesizer_dataset import SynthesizerDataset, collate_synthesi
 from synthesizer.utils import ValueWindow, data_parallel_workaround
 from synthesizer.utils.plot import plot_spectrogram
 from synthesizer.utils.symbols import symbols
-from synthesizer.utils.text import sequence_to_text
+from synthesizer.utils.vitext import sequence_to_text
 from vocoder.display import *
 from datetime import datetime
 import numpy as np
@@ -60,6 +60,8 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
         for session in hparams.tts_schedule:
             _, _, _, batch_size = session
             if batch_size % torch.cuda.device_count() != 0:
+                print(batch_size)
+                print(torch.cuda.device_count())
                 raise ValueError("`batch_size` must be evenly divisible by n_gpus!")
     else:
         device = torch.device("cpu")
@@ -109,6 +111,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
     mel_dir = syn_dir.joinpath("mels")
     embed_dir = syn_dir.joinpath("embeds")
     dataset = SynthesizerDataset(metadata_fpath, mel_dir, embed_dir, hparams)
+
     test_loader = DataLoader(dataset,
                              batch_size=1,
                              shuffle=True,
@@ -155,13 +158,13 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
         epochs = np.ceil(training_steps / steps_per_epoch).astype(np.int32)
 
         for epoch in range(1, epochs+1):
-            for i, (texts, mels, embeds, idx) in enumerate(data_loader, 1):
+            for i, (texts, mels, embeds, idx, mel_frames) in enumerate(data_loader, 1):
                 start_time = time.time()
 
                 # Generate stop tokens for training
                 stop = torch.ones(mels.shape[0], mels.shape[2])
                 for j, k in enumerate(idx):
-                    stop[j, :int(dataset.metadata[k][4])-1] = 0
+                    stop[j, :mel_frames[j]-1] = 0
 
                 texts = texts.to(device)
                 mels = mels.to(device)
@@ -220,7 +223,7 @@ def train(run_id: str, syn_dir: str, models_dir: str, save_every: int,
                         # At most, generate samples equal to number in the batch
                         if sample_idx + 1 <= len(texts):
                             # Remove padding from mels using frame length in metadata
-                            mel_length = int(dataset.metadata[idx[sample_idx]][4])
+                            mel_length = mel_frames[sample_idx]
                             mel_prediction = np_now(m2_hat[sample_idx]).T[:mel_length]
                             target_spectrogram = np_now(mels[sample_idx]).T[:mel_length]
                             attention_len = mel_length // model.r
