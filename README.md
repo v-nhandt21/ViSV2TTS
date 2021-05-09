@@ -1,3 +1,24 @@
+# Training Voice Cloning for Vietnamese
+
+This folk repo train SV2TTS in Vietnamese Multispeaker Dataset: VinBigData with over 50.000 audio samples
+
+## Preprocess Data
+
+We need to prepare a folder SV2TTS include:
++ mels : this folder contains files that is mel-spectrogram of each audio in format npy, I have implemented script to generate mels from audio:
+``` python synthesizer/gen_mel.py```
+
++ embed: this folder contains files that is embed of speakers, each is npy file with vector 256d dim, we much train a version of verification for Vietnamese
+
++ train.txt: this file describes metadata for training with format each line:
+``` audio_path | mel_path | embed_path | audio_duration | mel_frame_lenght | script ```
+
+## Training Data
+
+```python synthesizer_train.py <run_name> <path to SV2TTS folder mention above>```
+
+# Following are README from source repo
+
 # Real-Time Voice Cloning
 This repository is an implementation of [Transfer Learning from Speaker Verification to
 Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf) (SV2TTS) with a vocoder that works in real-time. Feel free to check [my thesis](https://matheo.uliege.be/handle/2268.2/6801) if you're curious or if you're looking for info I haven't documented. Mostly I would recommend giving a quick look to the figures beyond the introduction.
