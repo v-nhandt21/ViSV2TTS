@@ -1,20 +1,13 @@
-umap-learn
-visdom
-librosa>=0.8.0
-matplotlib>=3.3.0
-numpy==1.19.3; platform_system == "Windows"
-numpy==1.19.4; platform_system != "Windows"
-scipy>=1.0.0
-tqdm
-sounddevice
-SoundFile
-Unidecode
-inflect
-PyQt5
-multiprocess
-numba
-webrtcvad; platform_system != "Windows"
-torch==1.0.1
 vinorm
 underthesea
 eng_to_ipa
+pydub
+webrtcvad
+Cython==0.29.21
+librosa==0.8.0
+matplotlib==3.3.1
+phonemizer==2.2.1
+tensorboard==2.3.0
+Unidecode==1.1.1
+protobuf==3.20
+Pillow==9.5.0
