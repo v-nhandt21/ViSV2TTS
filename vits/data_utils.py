@@ -173,12 +173,12 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
 
         random.seed(1234)
         random.shuffle(self.audiopaths_sid_text)
-        self._filter()
+        self._filter(hparams)
 
     def get_speaker_embedding(self, path):
         return torch.from_numpy(np.load(path))
 
-    def _filter(self):
+    def _filter(self, hparams):
         """
         Filter text & store spec lengths
         """
@@ -189,8 +189,8 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         audiopaths_sid_text_new = []
         lengths = []
         for audiopath, sid, text in self.audiopaths_sid_text:
-            audiopath = "../DATA/wavs/" + audiopath
-            sid = "../DATA/embedding/" + sid
+            audiopath = hparams.wavs_dir + "/" + audiopath
+            sid = hparams.speaker_embedding_dir + "/" + sid
             if self.min_text_len <= len(text) and len(text) <= self.max_text_len:
                 audiopaths_sid_text_new.append([audiopath, sid, text])
                 lengths.append(os.path.getsize(audiopath) // (2 * self.hop_length))

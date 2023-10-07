@@ -1,7 +1,7 @@
 {
      "train": {
        "log_interval": 200,
-       "eval_interval": 1000,
+       "eval_interval": 50000,
        "seed": 1234,
        "epochs": 10000,
        "learning_rate": 2e-4,
@@ -17,6 +17,8 @@
        "c_kl": 1.0
      },
      "data": {
+       "wavs_dir": "../DATA/wavs",
+       "speaker_embedding_dir": "../DATA/embedding",
        "training_files":"../DATA/train.txt",
        "validation_files":"../DATA/val.txt",
        "text_cleaners":["english_cleaners2"],
