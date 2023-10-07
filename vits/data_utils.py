@@ -51,7 +51,12 @@ class TextAudioLoader(torch.utils.data.Dataset):
         for audiopath, text in self.audiopaths_and_text:
             if self.min_text_len <= len(text) and len(text) <= self.max_text_len:
                 audiopaths_and_text_new.append([audiopath, text])
-                lengths.append(os.path.getsize(audiopath) // (2 * self.hop_length))
+
+                spec_filename = audiopath.replace(".wav", ".spec.pt")
+                if os.path.exists(spec_filename):
+                    lengths.append(float(torch.load(spec_filename).size(1)) // 2)
+                else:
+                    lengths.append(os.path.getsize(audiopath) // (2 * self.hop_length))
         self.audiopaths_and_text = audiopaths_and_text_new
         self.lengths = lengths
 
@@ -193,7 +198,12 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
             sid = hparams.speaker_embedding_dir + "/" + sid
             if self.min_text_len <= len(text) and len(text) <= self.max_text_len:
                 audiopaths_sid_text_new.append([audiopath, sid, text])
-                lengths.append(os.path.getsize(audiopath) // (2 * self.hop_length))
+                
+                spec_filename = audiopath.replace(".wav", ".spec.pt")
+                if os.path.exists(spec_filename):
+                    lengths.append(float(torch.load(spec_filename).size(1)) // 2)
+                else:
+                    lengths.append(os.path.getsize(audiopath) // (2 * self.hop_length))
         self.audiopaths_sid_text = audiopaths_sid_text_new
         self.lengths = lengths
 
