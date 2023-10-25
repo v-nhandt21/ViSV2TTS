@@ -11,3 +11,4 @@ tensorboard==2.3.0
 Unidecode==1.1.1
 protobuf==3.20
 Pillow==9.5.0
+moviepy

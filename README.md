@@ -68,3 +68,9 @@ python Step2_extract_feature.py
 ```
 python train_ms.py -c configs/vivos.json -m vivos 
 ```
+
+## Demo
+
+```python app.py```
+
+Then check port: http://127.0.0.1:7860/
